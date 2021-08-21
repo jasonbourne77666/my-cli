@@ -1,0 +1,23 @@
+{
+  "name": "@bourne-cli-dev/utils",
+  "version": "1.0.5",
+  "description": "bourne-cli-dev utils",
+  "author": "jasonbourne77666 <jasonbourne77666@gmail.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"ERun test from test\""
+  },
+  "gitHead": "5652a746c3580d2650853931adb1272120c115e3",
+  "publishConfig": {
+    "access": "public"
+  }
+}
