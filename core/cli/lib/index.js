@@ -37,8 +37,16 @@ async function checkGlobalUpdate() {
   // 2.调用npm API,获取所有版本号
   const { getNpmSemverVersion } = require('@bourne-cli-dev/get-npm-info');
   // 3.提取所有版本号，比对哪些版本号是大于当前版本号
-  getNpmSemverVersion(currentVersion, npmName);
+  const lastVersion = await getNpmSemverVersion(currentVersion, npmName);
   // 4.获取最新的版本号，提示用户更新到最新版本
+  if (lastVersion && semver.gt(lastVersion, currentVersion)) {
+    log.warn(
+      colors.yellow(
+        '更新提示',
+        `请手动更新${npmName}，当前版本：${currentVersion}，最新版本：${lastVersion}，更新命令：npm install -g ${npmName}`
+      )
+    );
+  }
 }
 
 // 检查环境变量

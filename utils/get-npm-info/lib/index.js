@@ -47,9 +47,15 @@ async function getNpmVersions(npmName) {
  * @param versions 所有历史版本号
  */
 function getNpmSemverVersions(baseVersion, versions) {
-  versions = versions.filter((version) => {
-    return semver.satisfies(version, `${baseVersion}`);
-  });
+  versions = versions
+    .filter((version) => {
+      // 筛选大于等于 baseVersion 的版本列表
+      return semver.satisfies(version, `>=${baseVersion}`);
+    })
+    .sort((a, b) => {
+      // 如果b大于a，b就排前面
+      return semver.gt(b, a);
+    });
   return versions;
 }
 
@@ -60,8 +66,10 @@ function getNpmSemverVersions(baseVersion, versions) {
 async function getNpmSemverVersion(baseVersion, npmName, registry) {
   const versions = await getNpmVersions(npmName);
   const newVersions = getNpmSemverVersions(baseVersion, versions);
-  console.log(baseVersion, versions, npmName);
-  console.log('newVersions', newVersions);
+  if (newVersions && newVersions.length > 0) {
+    return newVersions[0];
+  }
+  return '';
 }
 
 module.exports = { getNpmInfo, getNpmVersions, getNpmSemverVersion };
