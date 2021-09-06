@@ -25,13 +25,13 @@ function getNpmInfo(npmName, registry) {
     });
 }
 
-function getDefaultRegistry(isOriginal = true) {
+function getDefaultRegistry(isOriginal) {
   return isOriginal
     ? 'https://registry.npmjs.org/'
-    : 'https://registry.npmjs.taobao.org/';
+    : 'https://registry.npm.taobao.org/';
 }
 
-// 3.提取所有版本号，比对哪些版本号是大于当前版本号
+// 调用npm API,获取所有版本号
 async function getNpmVersions(npmName) {
   const data = await getNpmInfo(npmName);
   if (data) {
@@ -72,4 +72,28 @@ async function getNpmSemverVersion(baseVersion, npmName, registry) {
   return '';
 }
 
-module.exports = { getNpmInfo, getNpmVersions, getNpmSemverVersion };
+/**
+ * 获取最新版本号，即所有版本中最新的
+ * @param {*} npmName
+ * @param {*} registry
+ * @returns 返回所有的版本
+ */
+async function getNpmLatestVersion(npmName, registry) {
+  let versions = await getNpmVersions(npmName);
+  if (versions) {
+    versions = versions.sort((a, b) => {
+      // 如果b大于a，b就排前面
+      return semver.gt(b, a);
+    });
+    return versions[0];
+  }
+  return null;
+}
+
+module.exports = {
+  getNpmInfo,
+  getNpmVersions,
+  getNpmSemverVersion,
+  getDefaultRegistry,
+  getNpmLatestVersion,
+};

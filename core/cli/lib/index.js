@@ -5,33 +5,28 @@ const path = require('path');
 const semver = require('semver');
 const commander = require('commander');
 const colors = require('colors/safe');
-const pathExists = require('path-exists');
-const minimist = require('minimist');
+const pathExists = require('path-exists').sync;
 const dotenv = require('dotenv');
 const { homedir } = require('os');
 
 const log = require('@bourne-cli-dev/log');
-const init = require('@bourne-cli-dev/init');
+const exec = require('@bourne-cli-dev/exec');
 const pkg = require('../package.json');
 const constant = require('./constant');
 
 const userHome = homedir();
-let argvs;
 const program = new commander.Command();
 
 // 入口函数
 async function core() {
   try {
-    checkPkgVersion();
-    checknodeVersion();
-    checkRoot();
-    checkUserHome();
-    // checkInputArgs();
-    checkEnv();
-    await checkGlobalUpdate();
+    await prepare();
     registerCommand();
   } catch (error) {
     log.error(error.message);
+    if (program.opts().debug) {
+      console.log(error);
+    }
   }
 }
 
@@ -41,16 +36,10 @@ function registerCommand() {
     .name(Object.keys(pkg.bin)[0])
     .usage('<command> [options]')
     .version(pkg.version)
-    .option('-d, --debug', '是否开启调试模式', false);
+    .option('-d, --debug', '是否开启调试模式', false)
+    .option('-tp, --targetPath <targetPath>', '是否指定本地调试文件路径', ''); // <targetPath> 读取字符串，而非默认的boolean
 
-  // 注册命令
-  program
-    .command('init [projectName]')
-    .option('-f, --force', '是否强制初始化项目')
-    .description('初始化项目')
-    .action(init);
-
-  // 开启debug模式，监听全局参数
+  // 开启debug模式，监听全局参数，然后赋值到全局变量
   program.on('option:debug', function () {
     const options = program.opts();
     if (options.debug) {
@@ -59,8 +48,20 @@ function registerCommand() {
       process.env.LOG_LEVEL = 'info';
     }
     log.level = process.env.LOG_LEVEL;
-    log.verbose('debug', 'test debug log');
   });
+
+  //监听全局参数 targetPath，然后赋值到全局变量
+  program.on('option:targetPath', function () {
+    // 定义目标目录的路径，参数中传
+    process.env.CLI_TARGET_PATH = program.opts().targetPath;
+  });
+
+  // 注册命令
+  program
+    .command('init [projectName]')
+    .option('-f, --force', '是否强制初始化项目')
+    .description('初始化项目')
+    .action(exec);
 
   // 监听未知命令，做出提示
   program.on('command:*', function (obj) {
@@ -83,6 +84,14 @@ function registerCommand() {
   }
 }
 
+async function prepare() {
+  checkPkgVersion();
+  checkRoot();
+  checkUserHome();
+  checkEnv();
+  await checkGlobalUpdate();
+}
+
 async function checkGlobalUpdate() {
   // 1. 获取当前版本号机模块名
   const currentVersion = pkg.version;
@@ -103,7 +112,7 @@ async function checkGlobalUpdate() {
 }
 
 // 检查环境变量
-// 用于储存本地信息
+// 用于储存本地信息文件位置
 function checkEnv() {
   const dotenvPath = path.resolve(userHome, '.env');
   if (pathExists(dotenvPath)) {
@@ -112,7 +121,6 @@ function checkEnv() {
     });
   }
   createDefaultCliConfig();
-  log.info('环境变量', process.env.CLI_HOME_PATH);
 }
 function createDefaultCliConfig() {
   const cliConfig = {
@@ -126,22 +134,6 @@ function createDefaultCliConfig() {
   }
 
   process.env.CLI_HOME_PATH = cliConfig.cliHome;
-}
-
-// 检查入参
-function checkInputArgs() {
-  argvs = minimist(process.argv.slice(2));
-  checkArgs();
-  log.verbose('debug', 'test debug log');
-}
-
-function checkArgs() {
-  if (argvs.debug) {
-    process.env.LOG_LEVEL = 'verbose';
-  } else {
-    process.env.LOG_LEVEL = 'info';
-  }
-  log.level = process.env.LOG_LEVEL;
 }
 
 // 获取用户主目录
@@ -162,15 +154,4 @@ function checkRoot() {
 // 检查脚手架版本号
 function checkPkgVersion() {
   log.info('', `bourne-cli版本: ${pkg.version}`);
-}
-
-// 检查node版本号
-function checknodeVersion() {
-  // 1.获取版本号
-  const currentVersion = process.version;
-  // 2.比对最低的版本号
-  const lowest = constant.LOWEST_NODE_VERSION;
-  if (!semver.gte(currentVersion, lowest)) {
-    throw new Error(colors.red(`bourne-cli 需要${lowest}以上的版本`));
-  }
 }

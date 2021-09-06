@@ -1,7 +1,7 @@
 {
-  "name": "@bourne-cli-dev/init",
+  "name": "@bourne-cli-dev/package",
   "version": "1.0.0",
-  "description": "bourne-cli-dev init",
+  "description": "> TODO: description",
   "author": "jasonbourne77666 <jasonbourne77666@gmail.com>",
   "homepage": "https://github.com/jasonbourne77666/my-cli#readme",
   "license": "ISC",
@@ -14,7 +14,7 @@
     "lib"
   ],
   "publishConfig": {
-    "access": "public"
+    "registry": "https://registry.npm.taobao.org"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,12 @@
     "url": "https://github.com/jasonbourne77666/my-cli/issues"
   },
   "dependencies": {
-    "@bourne-cli-dev/command": "file:../../models/command",
-    "@bourne-cli-dev/log": "file:../../utils/log"
+    "@bourne-cli-dev/format-path": "file:../../utils/format-path",
+    "@bourne-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
+    "@bourne-cli-dev/utils": "file:../../utils/utils",
+    "fs-extra": "^10.0.0",
+    "npminstall": "^4.11.0",
+    "path-exists": "^4.0.0",
+    "pkg-dir": "^5.0.0"
   }
 }
