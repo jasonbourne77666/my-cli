@@ -19,5 +19,9 @@
   "gitHead": "5652a746c3580d2650853931adb1272120c115e3",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "cli-spinner": "^0.2.10",
+    "cross-spawn": "^7.0.3"
   }
 }

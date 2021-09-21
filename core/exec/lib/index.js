@@ -1,8 +1,11 @@
 'use strict';
 
+const path = require('path');
+const cp = require('child_process');
 const Package = require('@bourne-cli-dev/package');
 const log = require('@bourne-cli-dev/log');
-const path = require('path');
+const { execAsync } = require('@bourne-cli-dev/utils');
+const spawn = require('cross-spawn');
 
 const SETTINGS = {
   // init: '@bourne-cli-dev/init',
@@ -69,7 +72,44 @@ async function exec() {
   if (rootFile) {
     try {
       // arguments 长度未知，用apply调用，转换参数格式
-      require(rootFile).call(null, Array.from(arguments));
+
+      // 使用node子进程调用
+      const args = Array.from(arguments);
+      const cmd = args[args.length - 1];
+
+      const o = Object.create(null);
+      Object.keys(cmd).forEach((key) => {
+        if (
+          cmd.hasOwnProperty(key) &&
+          !key.startsWith('_') &&
+          key !== 'parent'
+        ) {
+          o[key] = cmd[key];
+        }
+      });
+      args[args.length - 1] = o;
+      // require(rootFile).call(null, Array.from(arguments));
+      const code = `require('${rootFile}').call(null, ${JSON.stringify(args)})`;
+      // 相当于多线程执行node -e "console.log('qwe')"
+      const child = spawn('node', ['-e', code], {
+        pwd: process.cwd(), // 当前目录
+        stdio: 'inherit', // 标准输出方式统一到父进程，不再需求监听stdout stderr
+      });
+      // child.stdout.on('data', (data) => {
+      //   console.log(`stdout: ${data}`);
+      // });
+      // child.stderr.on('data', (data) => {
+      //   console.error(`stderr: ${data}`);
+      // });
+      child.on('error', (e) => {
+        // 监听错误，中断子进程
+        console.log('error', e);
+        process.exit(1);
+      });
+      child.on('exit', (e) => {
+        log.verbose('子进程 exit with ' + e);
+        process.exit(e);
+      });
     } catch (error) {
       log.error(error.message);
     }

@@ -28,6 +28,13 @@
   },
   "dependencies": {
     "@bourne-cli-dev/command": "file:../../models/command",
-    "@bourne-cli-dev/log": "file:../../utils/log"
+    "@bourne-cli-dev/log": "file:../../utils/log",
+    "@bourne-cli-dev/package": "file:../../models/package",
+    "@bourne-cli-dev/request": "file:../../utils/request",
+    "@bourne-cli-dev/utils": "file:../../utils/utils",
+    "cross-spawn": "^7.0.3",
+    "ejs": "^3.1.6",
+    "glob": "^7.1.7",
+    "kebab-case": "^1.0.1"
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@bourne-cli-dev/exec",
-  "version": "1.0.0",
-  "description": "动态执行package",
+  "name": "@bourne-cli-dev/request",
+  "version": "1.0.11",
+  "description": "> TODO: description",
   "author": "jasonbourne77666 <jasonbourne77666@gmail.com>",
   "homepage": "https://github.com/jasonbourne77666/my-cli#readme",
   "license": "ISC",
@@ -14,7 +14,7 @@
     "lib"
   ],
   "publishConfig": {
-    "registry": "https://registry.npm.taobao.org"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -27,9 +27,6 @@
     "url": "https://github.com/jasonbourne77666/my-cli/issues"
   },
   "dependencies": {
-    "@bourne-cli-dev/log": "file:../../utils/log",
-    "@bourne-cli-dev/utils": "file:../../utils/utils",
-    "@bourne-cli-dev/package": "file:../../models/package",
-    "cross-spawn": "^7.0.3"
+    "axios": "^0.21.4"
   }
 }
